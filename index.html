@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="400m・800m・1500m・5kmなどの記録から、3000mの予想タイムを計算するWebツールです。">
+<meta name="description" content="800m・1500m・5kmなどの記録から、3000mの予想タイムを計算するWebツールです。">
 <meta name="robots" content="index,follow">
 <title>3000m予測｜由比ヶ浜ラボ</title>
 
@@ -343,7 +343,6 @@ footer{padding:25px 18px 90px;color:#98a1b0;text-align:center;font-size:.72rem;}
     </div>
     <label class="field-label">距離</label>
     <select class="distance-select" aria-label="記録1の種目">
-        <option value="400">400m</option>
         <option value="800">800m</option>
         <option value="1500" selected>1500m</option>
         <option value="3000">3000m</option>
@@ -367,7 +366,6 @@ footer{padding:25px 18px 90px;color:#98a1b0;text-align:center;font-size:.72rem;}
         </div>
         <label class="field-label">距離</label>
         <select class="distance-select" aria-label="記録2の種目">
-            <option value="400">400m</option>
             <option value="800">800m</option>
             <option value="1500">1500m</option>
             <option value="3000">3000m</option>
@@ -392,7 +390,6 @@ footer{padding:25px 18px 90px;color:#98a1b0;text-align:center;font-size:.72rem;}
         </div>
         <label class="field-label">距離</label>
         <select class="distance-select" aria-label="記録3の種目">
-            <option value="400">400m</option>
             <option value="800">800m</option>
             <option value="1500">1500m</option>
             <option value="3000" selected>3000m</option>
@@ -538,7 +535,7 @@ footer{padding:25px 18px 90px;color:#98a1b0;text-align:center;font-size:.72rem;}
     <h2><span>⌂</span>入力のポイント</h2>
     <ul>
         <li>直近1年以内のベスト記録がおすすめです</li>
-        <li>400m・800m・1500m・5kmなど異なる距離を組み合わせると分析しやすくなります</li>
+        <li>800m・1500m・5kmなど異なる距離を組み合わせると分析しやすくなります</li>
         <li>練習記録より大会記録の方が予測精度が上がります</li>
     </ul>
 </section>
@@ -657,7 +654,6 @@ function updateTimeExample(card){
     if(!select || !example) return;
     const distance = Number(select.value);
     const examples = {
-        400:"例）4865 → 48.65",
         800:"例）15342 → 1:53.42",
         1500:"例）43000 → 4:30.00",
         3000:"例）92000 → 9:20.00",
@@ -734,7 +730,6 @@ function getPredictionWeight(distance){
     if(distance === 5000) return 2.5;
     if(distance === 800) return 2;
     if(distance === 10000) return 1.5;
-    if(distance === 400) return 1.2;
     return 1;
 }
 
@@ -743,7 +738,6 @@ function calculateConfidence(records){
     if(records.some(r => r.distance === 3000)) score += 25;
     else if(records.some(r => r.distance === 1500 || r.distance === 5000)) score += 20;
     else if(records.some(r => r.distance === 800 || r.distance === 10000)) score += 12;
-    else if(records.some(r => r.distance === 400)) score += 6;
     if(new Set(records.map(r => r.distance)).size >= 2) score += 10;
     const temperature = document.getElementById("temperature").value;
     const elevation = document.getElementById("elevation").value;
