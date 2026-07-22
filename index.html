@@ -725,31 +725,125 @@ function calculatePrediction(record){
 }
 
 function getPredictionWeight(distance){
-    if(distance === 3000) return 4;
-    if(distance === 1500) return 3;
-    if(distance === 5000) return 2.5;
-    if(distance === 800) return 2;
-    if(distance === 10000) return 1.5;
-    return 1;
+
+    const weights = {
+        800: 0.85,
+        1500: 0.90,
+        3000: 1.00,
+        5000: 0.90,
+        10000: 0.75,
+        21097.5: 0.55,
+        42195: 0.45
+    };
+
+    return weights[distance] ?? 0.50;
 }
 
 function calculateConfidence(records){
-    let score = Math.min(records.length * 20, 60);
-    if(records.some(r => r.distance === 3000)) score += 25;
-    else if(records.some(r => r.distance === 1500 || r.distance === 5000)) score += 20;
-    else if(records.some(r => r.distance === 800 || r.distance === 10000)) score += 12;
-    if(new Set(records.map(r => r.distance)).size >= 2) score += 10;
-    const temperature = document.getElementById("temperature").value;
-    const elevation = document.getElementById("elevation").value;
-    if(temperature !== "") score += 3;
-    if(elevation !== "") score += 2;
-    score = Math.min(score,100);
 
-    if(score >= 90) return {score,stars:"★★★★★",message:"複数の実績から算出した高精度な予測です。"};
-    if(score >= 75) return {score,stars:"★★★★☆",message:"比較的信頼できる予測です。"};
-    if(score >= 55) return {score,stars:"★★★☆☆",message:"十分予測できますが、異なる距離の記録があるとさらに精度が向上します。"};
-    if(score >= 40) return {score,stars:"★★☆☆☆",message:"もう1〜2件記録を入力すると予測精度が向上します。"};
-    return {score,stars:"★☆☆☆☆",message:"記録を追加すると予測精度が向上します。"};
+    const confidenceSettings = {
+        800: 28,
+        1500: 42,
+        3000: 70,
+        5000: 55,
+        10000: 45,
+        21097.5: 32,
+        42195: 30
+    };
+
+    let score = 0;
+
+    records.forEach(function(record){
+        score += confidenceSettings[record.distance] ?? 20;
+    });
+
+    const uniqueDistances =
+        new Set(
+            records.map(function(record){
+                return record.distance;
+            })
+        );
+
+    if(uniqueDistances.size >= 2){
+        score += 8;
+    }
+
+    if(uniqueDistances.size >= 3){
+        score += 7;
+    }
+
+    const predictions =
+        records.map(function(record){
+            return calculatePrediction(record);
+        });
+
+    if(predictions.length >= 2){
+
+        const maxPrediction =
+            Math.max(...predictions);
+
+        const minPrediction =
+            Math.min(...predictions);
+
+        const predictionGap =
+            maxPrediction - minPrediction;
+
+        if(predictionGap <= 5){
+            score += 20;
+        }else if(predictionGap <= 10){
+            score += 14;
+        }else if(predictionGap <= 20){
+            score += 7;
+        }else if(predictionGap <= 30){
+            score += 0;
+        }else{
+            score -= 10;
+        }
+    }
+
+    score =
+        Math.max(
+            0,
+            Math.min(100,score)
+        );
+
+    if(score >= 90){
+        return {
+            score,
+            stars:"★★★★★",
+            message:"複数の記録がよく一致しており、高い精度が期待できる予測です。"
+        };
+    }
+
+    if(score >= 75){
+        return {
+            score,
+            stars:"★★★★☆",
+            message:"比較的信頼できる予測です。"
+        };
+    }
+
+    if(score >= 55){
+        return {
+            score,
+            stars:"★★★☆☆",
+            message:"十分予測できますが、別の距離の記録があるとさらに精度が向上します。"
+        };
+    }
+
+    if(score >= 40){
+        return {
+            score,
+            stars:"★★☆☆☆",
+            message:"もう1〜2件記録を入力すると予測精度が向上します。"
+        };
+    }
+
+    return {
+        score,
+        stars:"★☆☆☆☆",
+        message:"この距離だけでは個人差が出やすいため、別の距離の記録も入力してください。"
+    };
 }
 
 function calculateRunnerLevels(records){
