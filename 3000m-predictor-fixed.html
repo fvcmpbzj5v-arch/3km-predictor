@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="400m・800m・1500m・5kmなどの記録から、3000mの予想タイムを計算するWebツールです。">
+<meta name="robots" content="index,follow">
+<title>3000m予測｜由比ヶ浜ラボ</title>
+
+<style>
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+    margin:0;
+    background:#f4f7fc;
+    color:#17213a;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+}
+.page{
+    width:100%;
+    max-width:520px;
+    min-height:100vh;
+    margin:auto;
+    background:#fff;
+    box-shadow:0 0 28px rgba(30,60,110,.08);
+}
+header{
+    position:sticky;
+    top:0;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    padding:18px 20px;
+    background:rgba(255,255,255,.96);
+    border-bottom:1px solid #e6ebf3;
+    backdrop-filter:blur(10px);
+}
+.header-title{display:flex;align-items:center;gap:11px;}
+.logo{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:40px;
+    height:40px;
+    border-radius:12px;
+    background:#eaf1ff;
+}
+.title-runner-icon{display:block;width:28px;height:28px;}
+.header-text h1{margin:0;font-size:1.18rem;line-height:1.3;letter-spacing:.02em;}
+.header-text p{margin:3px 0 0;color:#77839a;font-size:.72rem;}
+main{padding:20px 18px 40px;}
+.notice{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    margin-bottom:25px;
+    padding:11px 13px;
+    color:#2363c9;
+    background:#f7faff;
+    border:1px solid #bcd2f6;
+    border-radius:10px;
+    font-size:.86rem;
+    font-weight:600;
+}
+.section-title{margin:0 0 16px;font-size:1.02rem;}
+.record-label{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    margin:0 0 9px;
+    color:#2768cf;
+    font-size:.86rem;
+    font-weight:700;
+}
+.required{padding:2px 6px;border-radius:5px;background:#246ee8;color:#fff;font-size:.65rem;}
+.record-card{
+    margin-bottom:16px;
+    padding:16px;
+    background:#fff;
+    border:1px solid #e0e6ef;
+    border-radius:13px;
+    box-shadow:0 3px 12px rgba(28,61,112,.08);
+}
+.record-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.record-icon{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:43px;
+    height:43px;
+    border-radius:50%;
+    background:#edf4ff;
+    color:#2874ef;
+}
+.record-icon svg,.condition-name svg{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
+.record-icon svg{width:24px;height:24px;stroke-width:2;}
+.condition-name svg{width:18px;height:18px;color:#2874ef;stroke-width:2;flex-shrink:0;}
+.distance-select,.time-input{
+    width:100%;
+    border:1px solid #dbe2ec;
+    border-radius:9px;
+    outline:none;
+    background:#fff;
+    color:#17213a;
+    font-weight:700;
+}
+.distance-select{padding:13px;margin-bottom:16px;font-size:1.05rem;}
+.time-input{padding:13px;font-size:1.08rem;}
+.field-label{display:block;margin-bottom:7px;color:#303c55;font-size:.8rem;font-weight:700;}
+.time-input:focus,.condition-input:focus,.distance-select:focus{
+    border-color:#2e77ee;
+    box-shadow:0 0 0 3px rgba(46,119,238,.12);
+}
+.time-input-example{margin:7px 0 0;color:#8a94a6;font-size:.75rem;}
+.add-record{
+    width:100%;
+    margin-bottom:16px;
+    padding:14px 15px;
+    border:1px solid #e0e6ef;
+    border-radius:12px;
+    background:#fff;
+    color:#2f405c;
+    text-align:left;
+    font-size:.9rem;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 3px 10px rgba(28,61,112,.05);
+}
+.add-record span{margin-right:8px;color:#2874ef;font-size:1.15rem;}
+.remove-record{
+    margin-left:auto;
+    padding:7px 12px;
+    border:1px solid #f0b8b8;
+    border-radius:8px;
+    background:#fff6f6;
+    color:#c43d3d;
+    font-size:.75rem;
+    font-weight:700;
+    cursor:pointer;
+}
+.hidden{display:none;}
+.conditions{
+    margin-top:22px;
+    padding:17px 15px;
+    border:1px solid #e0e6ef;
+    border-radius:13px;
+    background:#fff;
+    box-shadow:0 3px 12px rgba(28,61,112,.07);
+}
+.conditions-title{margin:0 0 14px;font-size:.9rem;}
+.condition-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.condition-box{padding:13px 12px;border:1px solid #e0e6ef;border-radius:10px;}
+.condition-name{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:10px;
+    color:#526079;
+    font-size:.7rem;
+    font-weight:700;
+    white-space:nowrap;
+}
+.condition-input-wrap{display:flex;align-items:center;}
+.condition-input{
+    width:100%;
+    min-width:0;
+    padding:8px 4px;
+    border:none;
+    border-bottom:1px solid #dfe5ee;
+    outline:none;
+    font-size:1.05rem;
+    font-weight:700;
+}
+.unit{margin-left:6px;color:#69758a;font-size:.78rem;}
+.predict-button{
+    width:100%;
+    margin-top:24px;
+    padding:16px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,#397ff2,#1761e5);
+    color:#fff;
+    font-size:1.05rem;
+    font-weight:700;
+    letter-spacing:.03em;
+    box-shadow:0 8px 18px rgba(30,100,220,.24);
+    cursor:pointer;
+}
+.privacy{display:flex;justify-content:center;align-items:center;gap:5px;margin:11px 0 0;color:#8b95a7;font-size:.7rem;}
+.error-message{
+    display:none;
+    margin-top:14px;
+    padding:11px 13px;
+    border:1px solid #efb7b7;
+    border-radius:9px;
+    background:#fff5f5;
+    color:#bd3333;
+    font-size:.82rem;
+    line-height:1.6;
+}
+.result{
+    display:none;
+    margin-top:22px;
+    padding:22px 17px;
+    border-radius:14px;
+    background:linear-gradient(145deg,#1664df,#083c9c);
+    color:#fff;
+    text-align:center;
+    box-shadow:0 10px 25px rgba(20,73,166,.24);
+}
+.result-label{margin:0;opacity:.82;font-size:.78rem;}
+.predicted-time{margin:10px 0 6px;font-size:clamp(2.1rem,11vw,3rem);font-weight:700;letter-spacing:.02em;}
+.result-pace{margin:0;font-size:.9rem;}
+.result-note{margin:14px 0 0;padding-top:13px;border-top:1px solid rgba(255,255,255,.25);font-size:.73rem;line-height:1.7;opacity:.85;}
+.confidence-box{margin-top:18px;padding:16px;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);}
+.confidence-label{margin:0;font-size:.8rem;opacity:.85;}
+.confidence-value{margin:8px 0 4px;font-size:1.4rem;font-weight:700;}
+.confidence-stars{margin:0;font-size:1.3rem;letter-spacing:2px;color:#ffd54a;}
+.confidence-message{margin:10px 0 0;font-size:.75rem;line-height:1.6;opacity:.9;}
+.runner-type-card{
+    margin-top:24px;
+    padding:22px;
+    background:#fff;
+    border:1px solid #dfe6f1;
+    border-radius:18px;
+    box-shadow:0 8px 24px rgba(30,70,120,.08);
+    color:#17213a;
+}
+.speed-type{background:linear-gradient(135deg,#eef5ff,#dbeafe);border:2px solid #3b82f6;}
+.balance-type{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;}
+.endurance-type{background:linear-gradient(135deg,#fff7ed,#fed7aa);border:2px solid #f97316;}
+.speed-type .runner-icon{background:#3b82f6;}
+.balance-type .runner-icon{background:#22c55e;}
+.endurance-type .runner-icon{background:#f97316;}
+.runner-title{margin:0 0 18px;font-size:15px;font-weight:700;color:#2563eb;}
+.runner-header{display:flex;align-items:center;gap:16px;}
+.runner-icon{
+    width:64px;
+    height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    border-radius:50%;
+    background:#eef4ff;
+}
+.runner-icon svg{width:32px;height:32px;stroke:#fff;stroke-width:2.5;}
+.runner-name{margin:0 0 7px;font-size:24px;font-weight:800;color:#172033;}
+.runner-description{margin:0;line-height:1.7;font-size:14px;color:#465166;}
+.runner-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;}
+.runner-stat{padding:14px 6px;text-align:center;border:1px solid #dfe4ec;border-radius:12px;background:#fff;}
+.stat-label{margin:0 0 8px;font-size:13px;font-weight:700;color:#252b36;}
+.stat-value{margin:0;font-size:14px;font-weight:800;color:#16a36a;}
+.analysis-section{margin-top:28px;}
+.analysis-title{margin:0 0 16px;font-size:18px;font-weight:800;color:#fff;}
+.analysis-card{margin-bottom:18px;overflow:hidden;background:#fff;border:1px solid #dfe6f1;border-radius:18px;box-shadow:0 8px 24px rgba(30,70,120,.08);color:#17213a;}
+.analysis-card-title{margin:0;padding:14px 18px;background:#edf5ff;color:#2563eb;font-size:15px;font-weight:700;}
+.analysis-card-value{margin:24px 0 10px;text-align:center;font-size:42px;font-weight:800;color:#172033;}
+.analysis-card-rank{margin:0;text-align:center;color:#2563eb;font-size:16px;font-weight:700;}
+.analysis-card-description{margin:22px 20px;text-align:center;color:#5a6577;font-size:14px;line-height:1.8;}
+.training-menu-section{
+    display:none;
+    margin-top:22px;
+    overflow:hidden;
+    background:#fff;
+    border:2px solid #1761e5;
+    border-radius:18px;
+    box-shadow:0 10px 25px rgba(20,73,166,.14);
+}
+.training-menu-header{display:flex;align-items:center;gap:12px;padding:18px 16px;color:#fff;background:linear-gradient(135deg,#1761e5,#0844ae);}
+.training-menu-main-icon{display:flex;align-items:center;justify-content:center;width:50px;height:50px;flex-shrink:0;border-radius:50%;background:#fff;color:#1761e5;}
+.training-menu-main-icon svg{width:27px;height:27px;stroke-width:2.3;}
+.training-menu-header-text h2{margin:0;font-size:20px;font-weight:800;line-height:1.3;}
+.training-menu-header-text p{margin:4px 0 0;font-size:12px;line-height:1.6;opacity:.9;}
+.training-menu-body{padding:14px;}
+.training-category{padding:16px 12px 12px;border-radius:16px;}
+.training-category + .training-category{margin-top:14px;}
+.speed-training{border:1.5px solid #bfdbfe;background:linear-gradient(135deg,#fff,#eff6ff);}
+.endurance-training{border:1.5px solid #fed7aa;background:linear-gradient(135deg,#fff,#fff7ed);}
+.training-category-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.training-category-icon{display:flex;align-items:center;justify-content:center;width:48px;height:48px;flex-shrink:0;border-radius:50%;}
+.training-category-icon svg{width:26px;height:26px;stroke:#fff;stroke-width:2.4;}
+.speed-training .training-category-icon{background:#3b82f6;}
+.endurance-training .training-category-icon{background:#f97316;}
+.training-category-text h3{margin:0;font-size:18px;font-weight:800;line-height:1.3;}
+.speed-training .training-category-text h3{color:#2563eb;}
+.endurance-training .training-category-text h3{color:#ea580c;}
+.training-category-text p{margin:4px 0 0;color:#4b5563;font-size:11px;line-height:1.5;}
+.training-list{overflow:hidden;background:#fff;border-radius:13px;}
+.speed-training .training-list{border:1px solid #bfdbfe;}
+.endurance-training .training-list{border:1px solid #fed7aa;}
+.training-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;min-height:62px;padding:11px 12px;}
+.training-item + .training-item{border-top:1px solid #e2e8f0;}
+.training-name{color:#17213a;font-size:13px;font-weight:800;line-height:1.45;}
+.training-pace{padding:7px 9px;border-radius:8px;font-size:11px;font-weight:800;line-height:1.3;text-align:center;white-space:nowrap;}
+.speed-training .training-pace{color:#2563eb;background:#eaf2ff;}
+.endurance-training .training-pace{color:#ea580c;background:#fff0e3;}
+.training-menu-note{display:flex;align-items:flex-start;gap:9px;margin-top:14px;padding:12px;color:#45526a;background:#f0f6ff;border-radius:12px;font-size:11px;line-height:1.7;}
+.training-note-icon{display:flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0;border-radius:50%;background:#1761e5;color:#fff;font-size:13px;font-weight:800;}
+.tips{margin-top:23px;padding:17px;border:1px solid #d8e5fa;border-radius:12px;background:#f7faff;}
+.tips h2{display:flex;align-items:center;gap:7px;margin:0 0 12px;color:#2664c3;font-size:.88rem;}
+.tips ul{margin:0;padding-left:20px;color:#516079;font-size:.78rem;line-height:1.9;}
+footer{padding:25px 18px 90px;color:#98a1b0;text-align:center;font-size:.72rem;}
+.bottom-nav{position:sticky;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 4px 9px;border-top:1px solid #e2e7ef;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;color:#788399;font-size:.66rem;}
+.nav-item .nav-icon{font-size:1.2rem;}
+.nav-item.active{color:#2169e8;font-weight:700;}
+@media(max-width:430px){
+    .runner-type-card{padding:18px 14px;}
+    .runner-header{gap:12px;}
+    .runner-icon{width:56px;height:56px;}
+    .runner-name{font-size:21px;}
+    .runner-description{font-size:13px;}
+    .runner-stats{gap:7px;}
+    .runner-stat{padding:12px 4px;}
+    .stat-label,.stat-value{font-size:12px;}
+}
+</style>
+<script src="https://unpkg.com/lucide@1.24.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+<div class="page">
+<header>
+    <div class="header-title">
+        <div class="logo" aria-hidden="true">
+            <img src="icons/runner.svg" alt="" class="title-runner-icon">
+        </div>
+        <div class="header-text">
+            <h1>3000m予測</h1>
+            <p>あなたの記録から3000mの予測タイムを算出します</p>
+        </div>
+    </div>
+</header>
+
+<main>
+<div class="notice"><span>♧</span>最大3種目まで入力できます</div>
+<h2 class="section-title">記録を入力してください</h2>
+
+<p class="record-label">記録① <span class="required">必須</span></p>
+<section class="record-card" data-record="1">
+    <div class="record-header">
+        <div class="record-icon" aria-hidden="true"><i data-lucide="footprints"></i></div>
+    </div>
+    <label class="field-label">距離</label>
+    <select class="distance-select" aria-label="記録1の種目">
+        <option value="400">400m</option>
+        <option value="800">800m</option>
+        <option value="1500" selected>1500m</option>
+        <option value="3000">3000m</option>
+        <option value="5000">5km</option>
+        <option value="10000">10km</option>
+        <option value="21097.5">ハーフマラソン</option>
+        <option value="42195">フルマラソン</option>
+    </select>
+    <label class="field-label">タイム</label>
+    <input type="text" class="time-input" placeholder="4:30.00" inputmode="decimal" aria-label="記録1のタイム">
+    <p class="time-input-example">例）43000 → 4:30.00</p>
+</section>
+
+<button type="button" class="add-record" id="showRecord2"><span>＋</span>記録②を追加（任意）</button>
+<div id="record2Area" class="hidden">
+    <p class="record-label">記録②</p>
+    <section class="record-card" data-record="2">
+        <div class="record-header">
+            <div class="record-icon" aria-hidden="true"><i data-lucide="footprints"></i></div>
+            <button type="button" class="remove-record" id="removeRecord2">削除</button>
+        </div>
+        <label class="field-label">距離</label>
+        <select class="distance-select" aria-label="記録2の種目">
+            <option value="400">400m</option>
+            <option value="800">800m</option>
+            <option value="1500">1500m</option>
+            <option value="3000">3000m</option>
+            <option value="5000" selected>5km</option>
+            <option value="10000">10km</option>
+            <option value="21097.5">ハーフマラソン</option>
+            <option value="42195">フルマラソン</option>
+        </select>
+        <label class="field-label">タイム</label>
+        <input type="text" class="time-input" placeholder="16:30.00" inputmode="decimal" aria-label="記録2のタイム">
+        <p class="time-input-example">数字だけで入力できます</p>
+    </section>
+    <button type="button" class="add-record" id="showRecord3"><span>＋</span>記録③を追加（任意）</button>
+</div>
+
+<div id="record3Area" class="hidden">
+    <p class="record-label">記録③</p>
+    <section class="record-card" data-record="3">
+        <div class="record-header">
+            <div class="record-icon" aria-hidden="true"><i data-lucide="footprints"></i></div>
+            <button type="button" class="remove-record" id="removeRecord3">削除</button>
+        </div>
+        <label class="field-label">距離</label>
+        <select class="distance-select" aria-label="記録3の種目">
+            <option value="400">400m</option>
+            <option value="800">800m</option>
+            <option value="1500">1500m</option>
+            <option value="3000" selected>3000m</option>
+            <option value="5000">5km</option>
+            <option value="10000">10km</option>
+            <option value="21097.5">ハーフマラソン</option>
+            <option value="42195">フルマラソン</option>
+        </select>
+        <label class="field-label">タイム</label>
+        <input type="text" class="time-input" placeholder="9:20.00" inputmode="decimal" aria-label="記録3のタイム">
+        <p class="time-input-example">数字だけで入力できます</p>
+    </section>
+</div>
+
+<section class="conditions">
+    <h2 class="conditions-title">条件（任意・現在は信頼度判定のみ）</h2>
+    <div class="condition-grid">
+        <div class="condition-box">
+            <div class="condition-name"><i data-lucide="thermometer"></i>気温</div>
+            <div class="condition-input-wrap">
+                <input type="number" id="temperature" class="condition-input" placeholder="例 20" min="-10" max="50">
+                <span class="unit">℃</span>
+            </div>
+        </div>
+        <div class="condition-box">
+            <div class="condition-name"><i data-lucide="mountain"></i>高低差（累積上昇）</div>
+            <div class="condition-input-wrap">
+                <input type="number" id="elevation" class="condition-input" placeholder="例 0" min="0" max="3000">
+                <span class="unit">m</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<button type="button" class="predict-button" id="predictButton">予測する</button>
+<p class="privacy"><span>🔒</span>入力されたデータは保存されません。</p>
+<div class="error-message" id="errorMessage"></div>
+
+<section class="result" id="result" aria-live="polite">
+    <p class="result-label">3000m予測タイム（総合）</p>
+    <p class="predicted-time" id="predictedTime">―</p>
+    <p class="result-pace" id="predictedPace">―</p>
+
+    <div class="confidence-box">
+        <p class="confidence-label">予測信頼度</p>
+        <p class="confidence-value" id="confidenceValue">―</p>
+        <p class="confidence-stars" id="confidenceStars">☆☆☆☆☆</p>
+        <p class="confidence-message" id="confidenceMessage">記録を入力すると信頼度を判定します。</p>
+    </div>
+
+    <div class="runner-type-card">
+        <p class="runner-title">あなたのランナータイプ</p>
+        <div class="runner-header">
+            <div class="runner-icon" id="runnerIcon"><i data-lucide="target"></i></div>
+            <div>
+                <p class="runner-name" id="runnerTypeName">バランス型</p>
+                <p class="runner-description" id="runnerDescription">スピードと持久力のバランスが良いタイプです。</p>
+            </div>
+        </div>
+        <div class="runner-stats">
+            <div class="runner-stat"><p class="stat-label">スピード</p><p class="stat-value" id="speedType">普通</p></div>
+            <div class="runner-stat"><p class="stat-label">持久力</p><p class="stat-value" id="staminaType">普通</p></div>
+            <div class="runner-stat"><p class="stat-label">おすすめ</p><p class="stat-value" id="recommendType">1500m・3000m</p></div>
+        </div>
+    </div>
+
+    <section class="analysis-section">
+        <h2 class="analysis-title">あなたの能力分析</h2>
+        <div class="analysis-card">
+            <p class="analysis-card-title">参考VDOT</p>
+            <p class="analysis-card-value" id="vdotValue">--</p>
+            <p class="analysis-card-rank" id="vdotRank">--</p>
+            <p class="analysis-card-description">入力記録から算出したランニング能力の参考指標です。</p>
+        </div>
+        <div class="analysis-card">
+            <p class="analysis-card-title">推定VO₂max（参考）</p>
+            <p class="analysis-card-value" id="vo2maxValue">--</p>
+            <p class="analysis-card-rank" id="vo2maxRank">--</p>
+            <p class="analysis-card-description">VDOTを参考値として表示しています。医学的測定値ではありません。</p>
+        </div>
+        <div class="analysis-card">
+            <p class="analysis-card-title">LTペース</p>
+            <p class="analysis-card-value" id="ltPaceValue">--</p>
+            <p class="analysis-card-rank">20〜40分程度維持できるペース</p>
+            <p class="analysis-card-description">レースペース向上に重要なトレーニング強度です。</p>
+        </div>
+        <div class="analysis-card">
+            <p class="analysis-card-title">Eジョグペース</p>
+            <p class="analysis-card-value" id="easyPaceValue">--</p>
+            <p class="analysis-card-rank">無理なく会話できるペース</p>
+            <p class="analysis-card-description">持久力づくりや疲労回復に適したゆっくりめのジョグペースです。</p>
+        </div>
+        <div class="analysis-card">
+            <p class="analysis-card-title">Mペース</p>
+            <p class="analysis-card-value" id="marathonPaceValue">--</p>
+            <p class="analysis-card-rank">フルマラソンで維持する目安ペース</p>
+            <p class="analysis-card-description">長時間一定ペースで走る練習に適した強度です。</p>
+        </div>
+    </section>
+
+    <p class="result-note">入力された記録をもとに3000mの予測タイムを算出しています。</p>
+</section>
+
+<section class="training-menu-section" id="trainingMenuSection">
+    <div class="training-menu-header">
+        <div class="training-menu-main-icon"><i data-lucide="dumbbell"></i></div>
+        <div class="training-menu-header-text">
+            <h2>おすすめ練習メニュー</h2>
+            <p>3000mに必要なスピードと持久力を伸ばしましょう。</p>
+        </div>
+    </div>
+    <div class="training-menu-body">
+        <div class="training-category speed-training">
+            <div class="training-category-header">
+                <div class="training-category-icon"><i data-lucide="zap"></i></div>
+                <div class="training-category-text"><h3>スピード強化練習</h3><p>レーススピードとVO₂max向上を狙います。</p></div>
+            </div>
+            <div class="training-list">
+                <div class="training-item"><div class="training-name">200mインターバル×8〜12本</div><div class="training-pace">800m〜1500mペース</div></div>
+                <div class="training-item"><div class="training-name">400mインターバル×8〜10本</div><div class="training-pace">1500m〜3000mペース</div></div>
+                <div class="training-item"><div class="training-name">1000mインターバル×3〜5本</div><div class="training-pace">3000m〜5kmペース</div></div>
+            </div>
+        </div>
+        <div class="training-category endurance-training">
+            <div class="training-category-header">
+                <div class="training-category-icon"><i data-lucide="activity"></i></div>
+                <div class="training-category-text"><h3>持久力強化練習</h3><p>後半の失速を抑えるための練習です。</p></div>
+            </div>
+            <div class="training-list">
+                <div class="training-item"><div class="training-name">LT走20〜30分</div><div class="training-pace">LTペース</div></div>
+                <div class="training-item"><div class="training-name">テンポ走4〜8km</div><div class="training-pace">10km〜LTペース</div></div>
+                <div class="training-item"><div class="training-name">ロングジョグ60〜100分</div><div class="training-pace">Eジョグペース</div></div>
+            </div>
+        </div>
+        <div class="training-menu-note">
+            <div class="training-note-icon">i</div>
+            <div>※ ペースは目安です。体調やコンディションに合わせて調整してください。<br>※ ウォームアップ・クールダウンを忘れずに行いましょう。</div>
+        </div>
+    </div>
+</section>
+
+<section class="tips">
+    <h2><span>⌂</span>入力のポイント</h2>
+    <ul>
+        <li>直近1年以内のベスト記録がおすすめです</li>
+        <li>400m・800m・1500m・5kmなど異なる距離を組み合わせると分析しやすくなります</li>
+        <li>練習記録より大会記録の方が予測精度が上がります</li>
+    </ul>
+</section>
+</main>
+
+<footer>© 2026 Yuigahama Lab</footer>
+<nav class="bottom-nav">
+    <button type="button" class="nav-item active"><span class="nav-icon">✎</span>入力</button>
+    <button type="button" class="nav-item"><span class="nav-icon">▣</span>結果</button>
+    <button type="button" class="nav-item"><span class="nav-icon">◷</span>ラップ</button>
+    <button type="button" class="nav-item"><span class="nav-icon">⚙</span>分析</button>
+</nav>
+</div>
+
+<script>
+const targetDistance = 3000;
+
+function renderLucideIcons(){
+    if(
+        window.lucide &&
+        typeof window.lucide.createIcons === "function"
+    ){
+        window.lucide.createIcons();
+    }
+}
+
+const showRecord2Button = document.getElementById("showRecord2");
+const showRecord3Button = document.getElementById("showRecord3");
+const record2Area = document.getElementById("record2Area");
+const record3Area = document.getElementById("record3Area");
+const removeRecord2Button = document.getElementById("removeRecord2");
+const removeRecord3Button = document.getElementById("removeRecord3");
+const predictButton = document.getElementById("predictButton");
+const result = document.getElementById("result");
+const predictedTime = document.getElementById("predictedTime");
+const predictedPace = document.getElementById("predictedPace");
+const confidenceValue = document.getElementById("confidenceValue");
+const confidenceStars = document.getElementById("confidenceStars");
+const confidenceMessage = document.getElementById("confidenceMessage");
+const errorMessage = document.getElementById("errorMessage");
+const runnerTypeName = document.getElementById("runnerTypeName");
+const runnerDescription = document.getElementById("runnerDescription");
+const speedType = document.getElementById("speedType");
+const staminaType = document.getElementById("staminaType");
+const recommendType = document.getElementById("recommendType");
+const runnerTypeCard = document.querySelector(".runner-type-card");
+const runnerIcon = document.getElementById("runnerIcon");
+const vo2maxValue = document.getElementById("vo2maxValue");
+const vo2maxRank = document.getElementById("vo2maxRank");
+const vdotValue = document.getElementById("vdotValue");
+const vdotRank = document.getElementById("vdotRank");
+const ltPaceValue = document.getElementById("ltPaceValue");
+const easyPaceValue = document.getElementById("easyPaceValue");
+const marathonPaceValue = document.getElementById("marathonPaceValue");
+const trainingMenuSection = document.getElementById("trainingMenuSection");
+
+showRecord2Button.addEventListener("click", function(){
+    record2Area.classList.remove("hidden");
+    showRecord2Button.classList.add("hidden");
+});
+
+showRecord3Button.addEventListener("click", function(){
+    record3Area.classList.remove("hidden");
+    showRecord3Button.classList.add("hidden");
+});
+
+removeRecord3Button.addEventListener("click", function(){
+    const input = record3Area.querySelector(".time-input");
+    if(input) input.value = "";
+    record3Area.classList.add("hidden");
+    showRecord3Button.classList.remove("hidden");
+    result.style.display = "none";
+    trainingMenuSection.style.display = "none";
+});
+
+removeRecord2Button.addEventListener("click", function(){
+    const input2 = record2Area.querySelector(".time-input");
+    const input3 = record3Area.querySelector(".time-input");
+    if(input2) input2.value = "";
+    if(input3) input3.value = "";
+    record2Area.classList.add("hidden");
+    record3Area.classList.add("hidden");
+    showRecord2Button.classList.remove("hidden");
+    showRecord3Button.classList.remove("hidden");
+    result.style.display = "none";
+    trainingMenuSection.style.display = "none";
+});
+
+function formatRoadTimeInput(value){
+    const digits = value.replace(/\D/g, "");
+    if(digits.length <= 2) return digits;
+    if(digits.length <= 4) return digits.slice(0,-2) + ":" + digits.slice(-2);
+    return digits.slice(0,-4) + ":" + digits.slice(-4,-2) + ":" + digits.slice(-2);
+}
+
+function formatTrackTimeInput(value){
+    const digits = value.replace(/\D/g, "");
+    if(digits.length <= 2) return digits;
+    if(digits.length <= 4) return digits.slice(0,-2) + "." + digits.slice(-2);
+    return digits.slice(0,-4) + ":" + digits.slice(-4,-2) + "." + digits.slice(-2);
+}
+
+document.querySelectorAll(".time-input").forEach(function(input){
+    input.addEventListener("input", function(){
+        const card = input.closest(".record-card");
+        const distance = Number(card.querySelector(".distance-select").value);
+        input.value = distance >= 21097.5
+            ? formatRoadTimeInput(input.value)
+            : formatTrackTimeInput(input.value);
+    });
+});
+
+function updateTimeExample(card){
+    const select = card.querySelector(".distance-select");
+    const example = card.querySelector(".time-input-example");
+    if(!select || !example) return;
+    const distance = Number(select.value);
+    const examples = {
+        400:"例）4865 → 48.65",
+        800:"例）15342 → 1:53.42",
+        1500:"例）43000 → 4:30.00",
+        3000:"例）92000 → 9:20.00",
+        5000:"例）163000 → 16:30.00",
+        10000:"例）342500 → 34:25.00",
+        21097.5:"例）12930 → 1:29:30",
+        42195:"例）31158 → 3:11:58"
+    };
+    example.textContent = examples[distance] || "数字だけで入力できます";
+}
+
+document.querySelectorAll(".record-card").forEach(function(card){
+    const select = card.querySelector(".distance-select");
+    select.addEventListener("change", function(){ updateTimeExample(card); });
+    updateTimeExample(card);
+});
+
+function parseTime(value){
+    const cleanValue = value.trim();
+    if(!cleanValue) return null;
+    const parts = cleanValue.split(":").map(Number);
+    if(parts.some(Number.isNaN)) return null;
+    if(parts.length === 1){
+        if(parts[0] < 0 || parts[0] >= 60) return null;
+        return parts[0];
+    }
+    if(parts.length === 2){
+        const [minutes,seconds] = parts;
+        if(minutes < 0 || seconds < 0 || seconds >= 60) return null;
+        return minutes * 60 + seconds;
+    }
+    if(parts.length === 3){
+        const [hours,minutes,seconds] = parts;
+        if(hours < 0 || minutes < 0 || minutes >= 60 || seconds < 0 || seconds >= 60) return null;
+        return hours * 3600 + minutes * 60 + seconds;
+    }
+    return null;
+}
+
+function formatTrackRaceTime(totalSeconds){
+    if(!Number.isFinite(totalSeconds) || totalSeconds <= 0) return "--";
+    const rounded = Math.round(totalSeconds * 100) / 100;
+    const minutes = Math.floor(rounded / 60);
+    const seconds = rounded - minutes * 60;
+    return minutes + ":" + seconds.toFixed(2).padStart(5,"0");
+}
+
+function formatPace(secondsPerKm){
+    let minutes = Math.floor(secondsPerKm / 60);
+    let seconds = Math.round(secondsPerKm % 60);
+    if(seconds === 60){ seconds = 0; minutes += 1; }
+    return minutes + ":" + String(seconds).padStart(2,"0") + " /km";
+}
+
+function getVisibleRecords(){
+    const records = [];
+    document.querySelectorAll(".record-card").forEach(function(card){
+        if(card.closest(".hidden")) return;
+        const distance = Number(card.querySelector(".distance-select").value);
+        const timeText = card.querySelector(".time-input").value;
+        if(!timeText.trim()) return;
+        records.push({distance,totalSeconds:parseTime(timeText),raw:timeText});
+    });
+    return records;
+}
+
+function calculatePrediction(record){
+    return record.totalSeconds * Math.pow(targetDistance / record.distance, 1.06);
+}
+
+function getPredictionWeight(distance){
+    if(distance === 3000) return 4;
+    if(distance === 1500) return 3;
+    if(distance === 5000) return 2.5;
+    if(distance === 800) return 2;
+    if(distance === 10000) return 1.5;
+    if(distance === 400) return 1.2;
+    return 1;
+}
+
+function calculateConfidence(records){
+    let score = Math.min(records.length * 20, 60);
+    if(records.some(r => r.distance === 3000)) score += 25;
+    else if(records.some(r => r.distance === 1500 || r.distance === 5000)) score += 20;
+    else if(records.some(r => r.distance === 800 || r.distance === 10000)) score += 12;
+    else if(records.some(r => r.distance === 400)) score += 6;
+    if(new Set(records.map(r => r.distance)).size >= 2) score += 10;
+    const temperature = document.getElementById("temperature").value;
+    const elevation = document.getElementById("elevation").value;
+    if(temperature !== "") score += 3;
+    if(elevation !== "") score += 2;
+    score = Math.min(score,100);
+
+    if(score >= 90) return {score,stars:"★★★★★",message:"複数の実績から算出した高精度な予測です。"};
+    if(score >= 75) return {score,stars:"★★★★☆",message:"比較的信頼できる予測です。"};
+    if(score >= 55) return {score,stars:"★★★☆☆",message:"十分予測できますが、異なる距離の記録があるとさらに精度が向上します。"};
+    if(score >= 40) return {score,stars:"★★☆☆☆",message:"もう1〜2件記録を入力すると予測精度が向上します。"};
+    return {score,stars:"★☆☆☆☆",message:"記録を追加すると予測精度が向上します。"};
+}
+
+function calculateRunnerLevels(records){
+    if(records.length < 2) return {speedLevel:3,enduranceLevel:3};
+    const errorRates = [];
+    for(let i=0;i<records.length;i++){
+        for(let j=i+1;j<records.length;j++){
+            let shortRecord = records[i];
+            let longRecord = records[j];
+            if(shortRecord.distance > longRecord.distance){
+                [shortRecord,longRecord] = [longRecord,shortRecord];
+            }
+            if(shortRecord.distance === longRecord.distance) continue;
+            const predictedLong = shortRecord.totalSeconds * Math.pow(longRecord.distance / shortRecord.distance,1.06);
+            errorRates.push((longRecord.totalSeconds - predictedLong) / predictedLong * 100);
+        }
+    }
+    if(errorRates.length === 0) return {speedLevel:3,enduranceLevel:3};
+    const averageError = errorRates.reduce((a,b)=>a+b,0) / errorRates.length;
+    if(averageError >= 2) return {speedLevel:5,enduranceLevel:1};
+    if(averageError >= .5) return {speedLevel:4,enduranceLevel:2};
+    if(averageError > -.5) return {speedLevel:3,enduranceLevel:3};
+    if(averageError > -2) return {speedLevel:2,enduranceLevel:4};
+    return {speedLevel:1,enduranceLevel:5};
+}
+
+function getLevelText(level){
+    return ["低い","低い","やや低い","普通","高い","とても高い"][level] || "普通";
+}
+
+function calculateVDOT(distance,timeSeconds){
+    const minutes = timeSeconds / 60;
+    const velocity = distance / minutes;
+    const vo2 = -4.60 + 0.182258 * velocity + 0.000104 * velocity * velocity;
+    const percent = 0.8 + 0.1894393 * Math.exp(-0.012778 * minutes) + 0.2989558 * Math.exp(-0.1932605 * minutes);
+    return vo2 / percent;
+}
+
+function getAverageVDOT(records){
+    const values = records
+        .map(r => calculateVDOT(r.distance,r.totalSeconds))
+        .filter(Number.isFinite);
+    if(values.length === 0) return null;
+    return values.reduce((a,b)=>a+b,0) / values.length;
+}
+
+function getVDOTRank(vdot){
+    if(vdot >= 60) return "エリート";
+    if(vdot >= 55) return "上級";
+    if(vdot >= 50) return "中上級";
+    if(vdot >= 45) return "中級";
+    if(vdot >= 40) return "初中級";
+    return "初級";
+}
+
+function getVO2maxRank(value){
+    if(value >= 60) return "非常に高い";
+    if(value >= 50) return "高い";
+    if(value >= 45) return "やや高い";
+    if(value >= 35) return "標準的";
+    return "これから伸ばせます";
+}
+
+function calculateLTPaceFromVDOT(vdot){
+    if(!Number.isFinite(vdot) || vdot <= 0) return null;
+    const ltVO2 = vdot * .88;
+    const a = .000104;
+    const b = .182258;
+    const c = -4.60 - ltVO2;
+    const discriminant = b*b - 4*a*c;
+    if(discriminant < 0) return null;
+    const velocity = (-b + Math.sqrt(discriminant)) / (2*a);
+    if(!Number.isFinite(velocity) || velocity <= 0) return null;
+    return 60000 / velocity;
+}
+
+function calculateEasyPaceRange(ltPace){
+    if(!Number.isFinite(ltPace)) return null;
+    return {fast:ltPace+50,slow:ltPace+80};
+}
+
+function calculateMarathonPace(ltPace,vdot,speedLevel,enduranceLevel){
+    if(!Number.isFinite(ltPace)) return null;
+    let addSeconds = vdot < 40 ? 30 : vdot < 45 ? 27 : vdot < 50 ? 24 : vdot < 55 ? 21 : vdot < 60 ? 18 : 15;
+    if(speedLevel > enduranceLevel) addSeconds += 1.5;
+    else if(speedLevel < enduranceLevel) addSeconds -= 1.5;
+    return ltPace + addSeconds;
+}
+
+predictButton.addEventListener("click", function(){
+    errorMessage.style.display = "none";
+    result.style.display = "none";
+    trainingMenuSection.style.display = "none";
+
+    const firstInput = document.querySelector('[data-record="1"] .time-input');
+    if(!firstInput.value.trim()){
+        errorMessage.textContent = "記録①のタイムを入力してください。";
+        errorMessage.style.display = "block";
+        return;
+    }
+
+    const records = getVisibleRecords();
+    if(records.length === 0 || records.some(r => r.totalSeconds === null)){
+        errorMessage.textContent = "正しいタイム形式で入力してください。例：48.65、4:30.00、9:20.00";
+        errorMessage.style.display = "block";
+        return;
+    }
+
+    let weightedTotal = 0;
+    let totalWeight = 0;
+    records.forEach(function(record){
+        const prediction = calculatePrediction(record);
+        const weight = getPredictionWeight(record.distance);
+        weightedTotal += prediction * weight;
+        totalWeight += weight;
+    });
+    const finalPrediction = weightedTotal / totalWeight;
+
+    predictedTime.textContent = formatTrackRaceTime(finalPrediction);
+    predictedPace.textContent = "平均ペース " + formatPace(finalPrediction / 3);
+
+    const {speedLevel,enduranceLevel} = calculateRunnerLevels(records);
+    let runnerTypeText,runnerDescriptionText,recommendText,runnerIconName;
+    runnerTypeCard.classList.remove("speed-type","balance-type","endurance-type");
+
+    if(speedLevel > enduranceLevel){
+        runnerTypeText = "スピード型";
+        runnerDescriptionText = "短い距離で高いスピードを発揮しやすいタイプです。";
+        recommendText = "800m・1500m";
+        runnerIconName = "zap";
+        runnerTypeCard.classList.add("speed-type");
+    }else if(speedLevel < enduranceLevel){
+        runnerTypeText = "持久型";
+        runnerDescriptionText = "長い距離でもペースを維持しやすいタイプです。";
+        recommendText = "3000m・5000m";
+        runnerIconName = "activity";
+        runnerTypeCard.classList.add("endurance-type");
+    }else{
+        runnerTypeText = "バランス型";
+        runnerDescriptionText = "スピードと持久力のバランスが良いタイプです。";
+        recommendText = "1500m・3000m";
+        runnerIconName = "target";
+        runnerTypeCard.classList.add("balance-type");
+    }
+
+    runnerTypeName.textContent = runnerTypeText;
+    runnerDescription.textContent = runnerDescriptionText;
+    speedType.textContent = getLevelText(speedLevel);
+    staminaType.textContent = getLevelText(enduranceLevel);
+    recommendType.textContent = recommendText;
+    runnerIcon.innerHTML = '<i data-lucide="' + runnerIconName + '"></i>';
+
+    const averageVDOT = getAverageVDOT(records);
+    if(averageVDOT !== null){
+        vdotValue.textContent = averageVDOT.toFixed(1);
+        vdotRank.textContent = getVDOTRank(averageVDOT);
+        vo2maxValue.textContent = averageVDOT.toFixed(1);
+        vo2maxRank.textContent = getVO2maxRank(averageVDOT);
+        const ltPace = calculateLTPaceFromVDOT(averageVDOT);
+        if(ltPace !== null){
+            ltPaceValue.textContent = formatPace(ltPace);
+            const easy = calculateEasyPaceRange(ltPace);
+            easyPaceValue.textContent = formatPace(easy.fast).replace(" /km","") + "〜" + formatPace(easy.slow);
+            marathonPaceValue.textContent = formatPace(calculateMarathonPace(ltPace,averageVDOT,speedLevel,enduranceLevel));
+        }
+    }else{
+        vdotValue.textContent = "--";
+        vdotRank.textContent = "--";
+        vo2maxValue.textContent = "--";
+        vo2maxRank.textContent = "算出できません";
+        ltPaceValue.textContent = "--";
+        easyPaceValue.textContent = "--";
+        marathonPaceValue.textContent = "--";
+    }
+
+    const confidence = calculateConfidence(records);
+    confidenceValue.textContent = confidence.score + "点";
+    confidenceStars.textContent = confidence.stars;
+    confidenceMessage.textContent = confidence.message;
+
+    result.style.display = "block";
+    trainingMenuSection.style.display = "block";
+    renderLucideIcons();
+    result.scrollIntoView({behavior:"smooth",block:"start"});
+});
+
+renderLucideIcons();
+</script>
+</body>
+</html>
