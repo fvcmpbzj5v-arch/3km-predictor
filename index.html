@@ -745,9 +745,9 @@ function calculatePrediction(record){
 
     return record.totalSeconds *
         Math.pow(
-    longRecord.distance / shortRecord.distance,
-    getPredictionExponent(shortRecord.distance)
-);
+            targetDistance / record.distance,
+            exponent
+        );
 }
 
 function getPredictionWeight(distance){
