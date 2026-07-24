@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1065,6 +1064,15 @@ function calculateMarathonPace(ltPace,vdot,speedLevel,enduranceLevel){
     return ltPace + addSeconds;
 }
 
+function calculateIPace(ltPace){
+
+    if(!Number.isFinite(ltPace)){
+        return null;
+    }
+
+    return ltPace - 15;
+}
+
 predictButton.addEventListener("click", function(){
     errorMessage.style.display = "none";
     result.style.display = "none";
@@ -1137,7 +1145,11 @@ predictButton.addEventListener("click", function(){
         const ltPace = calculateLTPaceFromVDOT(averageVDOT);
         if(ltPace !== null){
             ltPaceValue.textContent = formatPace(ltPace);
-            iPaceValue.textContent = "--";
+            const iPace =
+    calculateIPace(ltPace);
+
+iPaceValue.textContent =
+    formatPace(iPace);
 rPaceValue.textContent = "--";
         }
     }else{
