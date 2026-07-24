@@ -1136,9 +1136,8 @@ predictButton.addEventListener("click", function(){
         const ltPace = calculateLTPaceFromVDOT(averageVDOT);
         if(ltPace !== null){
             ltPaceValue.textContent = formatPace(ltPace);
-            const easy = calculateEasyPaceRange(ltPace);
-            easyPaceValue.textContent = formatPace(easy.fast).replace(" /km","") + "〜" + formatPace(easy.slow);
-            marathonPaceValue.textContent = formatPace(calculateMarathonPace(ltPace,averageVDOT,speedLevel,enduranceLevel));
+            iPaceValue.textContent = "--";
+rPaceValue.textContent = "--";
         }
     }else{
         vdotValue.textContent = "--";
