@@ -724,8 +724,11 @@ function getPredictionExponent(distance){
 
     const exponents = {
         800: 1.166,
-        1500: 1.116,
-        5000: 1.105
+        1500: 1.115,
+        5000: 1.100,
+        10000: 1.060,
+        21097.5: 1.103,
+        42195: 1.095
     };
 
     return exponents[distance] ?? 1.06;
