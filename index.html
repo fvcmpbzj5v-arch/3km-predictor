@@ -870,27 +870,124 @@ function calculateConfidence(records){
 }
 
 function calculateRunnerLevels(records){
-    if(records.length < 2) return {speedLevel:3,enduranceLevel:3};
-    const errorRates = [];
-    for(let i=0;i<records.length;i++){
-        for(let j=i+1;j<records.length;j++){
-            let shortRecord = records[i];
-            let longRecord = records[j];
-            if(shortRecord.distance > longRecord.distance){
-                [shortRecord,longRecord] = [longRecord,shortRecord];
-            }
-            if(shortRecord.distance === longRecord.distance) continue;
-            const predictedLong = shortRecord.totalSeconds * Math.pow(longRecord.distance / shortRecord.distance,1.06);
-            errorRates.push((longRecord.totalSeconds - predictedLong) / predictedLong * 100);
-        }
+
+    if(records.length < 2){
+        return {
+            speedLevel:3,
+            enduranceLevel:3
+        };
     }
-    if(errorRates.length === 0) return {speedLevel:3,enduranceLevel:3};
-    const averageError = errorRates.reduce((a,b)=>a+b,0) / errorRates.length;
-    if(averageError >= 2) return {speedLevel:5,enduranceLevel:1};
-    if(averageError >= .5) return {speedLevel:4,enduranceLevel:2};
-    if(averageError > -.5) return {speedLevel:3,enduranceLevel:3};
-    if(averageError > -2) return {speedLevel:2,enduranceLevel:4};
-    return {speedLevel:1,enduranceLevel:5};
+
+    const convertedRecords =
+        records.map(function(record){
+
+            return {
+                distance:record.distance,
+                predicted3000:calculatePrediction(record)
+            };
+
+        });
+
+    const shortRecords =
+        convertedRecords.filter(function(record){
+            return record.distance < targetDistance;
+        });
+
+    const longRecords =
+        convertedRecords.filter(function(record){
+            return record.distance > targetDistance;
+        });
+
+    const direct3000Records =
+        convertedRecords.filter(function(record){
+            return record.distance === targetDistance;
+        });
+
+    function getAveragePrediction(list){
+
+        if(list.length === 0){
+            return null;
+        }
+
+        return list.reduce(function(total,record){
+            return total + record.predicted3000;
+        },0) / list.length;
+
+    }
+
+    const shortPrediction =
+        getAveragePrediction(shortRecords);
+
+    const longPrediction =
+        getAveragePrediction(longRecords);
+
+    const directPrediction =
+        getAveragePrediction(direct3000Records);
+
+    let speedReference = shortPrediction;
+    let enduranceReference = longPrediction;
+
+    if(speedReference === null && directPrediction !== null){
+        speedReference = directPrediction;
+    }
+
+    if(enduranceReference === null && directPrediction !== null){
+        enduranceReference = directPrediction;
+    }
+
+    if(
+        speedReference === null ||
+        enduranceReference === null
+    ){
+        return {
+            speedLevel:3,
+            enduranceLevel:3
+        };
+    }
+
+    const averagePrediction =
+        (speedReference + enduranceReference) / 2;
+
+    const differenceRate =
+        (
+            enduranceReference -
+            speedReference
+        ) /
+        averagePrediction *
+        100;
+
+    if(differenceRate >= 2){
+        return {
+            speedLevel:5,
+            enduranceLevel:1
+        };
+    }
+
+    if(differenceRate >= 0.5){
+        return {
+            speedLevel:4,
+            enduranceLevel:2
+        };
+    }
+
+    if(differenceRate > -0.5){
+        return {
+            speedLevel:3,
+            enduranceLevel:3
+        };
+    }
+
+    if(differenceRate > -2){
+        return {
+            speedLevel:2,
+            enduranceLevel:4
+        };
+    }
+
+    return {
+        speedLevel:1,
+        enduranceLevel:5
+    };
 }
 
 function getLevelText(level){
