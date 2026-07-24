@@ -1074,6 +1074,16 @@ function calculateIPace(ltPace){
     return ltPace - 22.2;
 }
 
+function calculateRPace(iPace){
+
+    if(!Number.isFinite(iPace)){
+        return null;
+    }
+
+    // 仮版（将来はVDOTテーブル準拠へ変更）
+    return iPace - 20;
+}
+
 predictButton.addEventListener("click", function(){
     errorMessage.style.display = "none";
     result.style.display = "none";
@@ -1161,7 +1171,11 @@ if(averageVDOT !== null){
         iPaceValue.textContent =
             formatPace(iPace);
 
-        rPaceValue.textContent = "--";
+        const rPace =
+    calculateRPace(iPace);
+
+rPaceValue.textContent =
+    formatPace(rPace);
 
     }else{
 
