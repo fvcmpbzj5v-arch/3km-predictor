@@ -1138,30 +1138,51 @@ predictButton.addEventListener("click", function(){
     runnerIcon.innerHTML = '<i data-lucide="' + runnerIconName + '"></i>';
 
     const averageVDOT = getAverageVDOT(records);
-    if(averageVDOT !== null){
-        vdotValue.textContent = averageVDOT.toFixed(1);
-        vdotRank.textContent = getVDOTRank(averageVDOT);
-        vo2maxValue.textContent = averageVDOT.toFixed(1);
-        vo2maxRank.textContent = getVO2maxRank(averageVDOT);
-        const ltPace = calculateLTPaceFromVDOT(averageVDOT);
-        if(ltPace !== null){
-            ltPaceValue.textContent = formatPace(ltPace);
-            const iPace =
-    calculateIPace(ltPace);
 
-iPaceValue.textContent =
-    formatPace(iPace);
-rPaceValue.textContent = "--";
-        }
+if(averageVDOT !== null){
+
+    vdotValue.textContent = averageVDOT.toFixed(1);
+    vdotRank.textContent = getVDOTRank(averageVDOT);
+
+    vo2maxValue.textContent = averageVDOT.toFixed(1);
+    vo2maxRank.textContent = getVO2maxRank(averageVDOT);
+
+    const ltPace =
+        calculateLTPaceFromVDOT(averageVDOT);
+
+    if(ltPace !== null){
+
+        ltPaceValue.textContent =
+            formatPace(ltPace);
+
+        const iPace =
+            calculateIPace(ltPace);
+
+        iPaceValue.textContent =
+            formatPace(iPace);
+
+        rPaceValue.textContent = "--";
+
     }else{
-        vdotValue.textContent = "--";
-        vdotRank.textContent = "--";
-        vo2maxValue.textContent = "--";
-        vo2maxRank.textContent = "算出できません";
+
         ltPaceValue.textContent = "--";
-        easyPaceValue.textContent = "--";
-        marathonPaceValue.textContent = "--";
+        iPaceValue.textContent = "--";
+        rPaceValue.textContent = "--";
+
     }
+
+}else{
+
+    vdotValue.textContent = "--";
+    vdotRank.textContent = "--";
+
+    vo2maxValue.textContent = "--";
+    vo2maxRank.textContent = "算出できません";
+
+    ltPaceValue.textContent = "--";
+    iPaceValue.textContent = "--";
+    rPaceValue.textContent = "--";
+}
 
     const confidence = calculateConfidence(records);
     confidenceValue.textContent = confidence.score + "点";
