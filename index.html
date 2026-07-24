@@ -478,7 +478,7 @@ footer{padding:25px 18px 90px;color:#98a1b0;text-align:center;font-size:.72rem;}
         </div>
         <div class="analysis-card">
             <p class="analysis-card-title">Iペース（インターバル）</p>
-            <p class="analysis-card-value" id="easyPaceValue">--</p>
+            <p class="analysis-card-value" id="iPaceValue">--</p>
             <p class="analysis-card-rank">
 1000mインターバルの目安
 </p>
@@ -488,7 +488,7 @@ VO₂max向上を目的としたインターバルトレーニングの目安ペ
         </div>
         <div class="analysis-card">
             <p class="analysis-card-title">Rペース（レペティション）</p>
-            <p class="analysis-card-value" id="marathonPaceValue">--</p>
+            <p class="analysis-card-value" id="rPaceValue">--</p>
             <p class="analysis-card-rank">
 200〜400mレペティションの目安
 </p>
@@ -596,8 +596,8 @@ const vo2maxRank = document.getElementById("vo2maxRank");
 const vdotValue = document.getElementById("vdotValue");
 const vdotRank = document.getElementById("vdotRank");
 const ltPaceValue = document.getElementById("ltPaceValue");
-const easyPaceValue = document.getElementById("easyPaceValue");
-const marathonPaceValue = document.getElementById("marathonPaceValue");
+const iPaceValue = document.getElementById("iPaceValue");
+const rPaceValue = document.getElementById("rPaceValue");
 const trainingMenuSection = document.getElementById("trainingMenuSection");
 
 showRecord2Button.addEventListener("click", function(){
