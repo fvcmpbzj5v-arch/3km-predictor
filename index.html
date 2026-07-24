@@ -720,8 +720,31 @@ function getVisibleRecords(){
     return records;
 }
 
+function getPredictionExponent(distance){
+
+    const exponents = {
+        800: 1.16545,
+        1500: 1.11548,
+        5000: 1.10041
+    };
+
+    return exponents[distance] ?? 1.06;
+}
+
 function calculatePrediction(record){
-    return record.totalSeconds * Math.pow(targetDistance / record.distance, 1.06);
+
+    if(record.distance === targetDistance){
+        return record.totalSeconds;
+    }
+
+    const exponent =
+        getPredictionExponent(record.distance);
+
+    return record.totalSeconds *
+        Math.pow(
+            targetDistance / record.distance,
+            exponent
+        );
 }
 
 function getPredictionWeight(distance){
