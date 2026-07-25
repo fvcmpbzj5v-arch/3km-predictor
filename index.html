@@ -1279,6 +1279,8 @@ predictButton.addEventListener("click", function(){
 
     predictedTime.textContent = formatTrackRaceTime(finalPrediction);
     predictedPace.textContent = "平均ペース " + formatPace(finalPrediction / 3);
+    
+    renderLapTable(finalPrediction);
 
     const {speedLevel,enduranceLevel} = calculateRunnerLevels(records);
     let runnerTypeText,runnerDescriptionText,recommendText,runnerIconName;
