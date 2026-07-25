@@ -556,7 +556,10 @@ VO₂max向上を目的としたインターバルトレーニングの目安ペ
     </div>
 
     <div class="training-item">
-        <div class="training-name">クルーズインターバル 1000m × 3〜6本</div>
+        <div class="training-name">
+    クルーズインターバル 1000m ×
+    <span id="cruise1000Reps">3〜6</span>本
+</div>
         <div class="training-pace">LTペース</div>
     </div>
 
@@ -635,7 +638,8 @@ const rPaceValue = document.getElementById("rPaceValue");
 const eJogPaceValue = document.getElementById("eJogPaceValue");
 const trainingMenuSection = document.getElementById("trainingMenuSection");
 const interval1000Reps = document.getElementById("interval1000Reps");
-    
+    const cruise1000Reps =
+    document.getElementById("cruise1000Reps");
 showRecord2Button.addEventListener("click", function(){
     record2Area.classList.remove("hidden");
     showRecord2Button.classList.add("hidden");
@@ -1122,12 +1126,21 @@ function calculateRPace(iPace){
 
 function get1000IntervalReps(vdot){
 
-    if(vdot < 45) return "3";
-    if(vdot < 50) return "4";
-    if(vdot < 55) return "5";
+    if(vdot < 50) return "3";
+    if(vdot < 59) return "4";
+    if(vdot < 68) return "5";
 
     return "6";
 
+}
+
+function getCruise1000Reps(vdot){
+
+    if(vdot < 45) return "3";
+    if(vdot < 55) return "4";
+    if(vdot < 65) return "5";
+
+    return "6";
 }
 
 predictButton.addEventListener("click", function(){
@@ -1204,6 +1217,8 @@ if(averageVDOT !== null){
     vo2maxRank.textContent = getVO2maxRank(averageVDOT);
 interval1000Reps.textContent =
     get1000IntervalReps(averageVDOT);
+cruise1000Reps.textContent =
+    getCruise1000Reps(averageVDOT);
 
 const ltPace =
     calculateLTPaceFromVDOT(averageVDOT);
