@@ -681,6 +681,8 @@ const iPaceValue = document.getElementById("iPaceValue");
 const rPaceValue = document.getElementById("rPaceValue");
 const eJogPaceValue = document.getElementById("eJogPaceValue");
 const trainingMenuSection = document.getElementById("trainingMenuSection");
+const lapTable =
+    document.getElementById("lapTable");
 const interval1000Reps = document.getElementById("interval1000Reps");
     const cruise1000Reps =
     document.getElementById("cruise1000Reps");
@@ -1185,6 +1187,65 @@ function getCruise1000Reps(vdot){
     if(vdot < 65) return "5";
 
     return "6";
+}
+
+function renderLapTable(totalSeconds){
+
+    const laps = [
+        200,
+        600,
+        1000,
+        1400,
+        1600,
+        2000,
+        2400,
+        2800,
+        3000
+    ];
+
+    lapTable.innerHTML = "";
+
+    const table =
+        document.createElement("table");
+
+    table.className = "lap-table";
+
+    laps.forEach(function(distance){
+
+        const row =
+            document.createElement("tr");
+
+        const distanceCell =
+            document.createElement("td");
+
+        distanceCell.className =
+            "lap-distance";
+
+        distanceCell.textContent =
+            distance + "m";
+
+        const timeCell =
+            document.createElement("td");
+
+        timeCell.className =
+            "lap-time";
+
+        timeCell.textContent =
+            formatTrackRaceTime(
+                totalSeconds *
+                distance /
+                3000
+            );
+
+        row.appendChild(distanceCell);
+        row.appendChild(timeCell);
+
+        table.appendChild(row);
+
+    });
+
+    lapTable.appendChild(table);
+
 }
 
 predictButton.addEventListener("click", function(){
