@@ -1203,21 +1203,10 @@ if(averageVDOT !== null){
     vo2maxValue.textContent = averageVDOT.toFixed(1);
     vo2maxRank.textContent = getVO2maxRank(averageVDOT);
 interval1000Reps.textContent =
-
-    get1000IntervalReps(
-
-        averageVDOT
-
-    );
+    get1000IntervalReps(averageVDOT);
 
 const ltPace =
-
     calculateLTPaceFromVDOT(averageVDOT);
-
-
-    const ltPace =
-        calculateLTPaceFromVDOT(averageVDOT);
-
     if(ltPace !== null){
 
         ltPaceValue.textContent =
