@@ -496,6 +496,18 @@ VO₂max向上を目的としたインターバルトレーニングの目安ペ
 スピードとランニングエコノミー向上を目的としたレペティションペースです。
 </p>
         </div>
+        
+        <div class="analysis-card">
+    <p class="analysis-card-title">Eジョグペース</p>
+    <p class="analysis-card-value" id="eJogPaceValue">--</p>
+    <p class="analysis-card-rank">
+日常のジョグ・回復走の目安
+</p>
+    <p class="analysis-card-description">
+基礎持久力の向上や疲労回復を目的とした、無理なく会話できる強度のジョグペースです。
+</p>
+</div>
+        
     </section>
 
     <p class="result-note">入力された記録をもとに3000mの予測タイムを算出しています。</p>
@@ -598,6 +610,7 @@ const vdotRank = document.getElementById("vdotRank");
 const ltPaceValue = document.getElementById("ltPaceValue");
 const iPaceValue = document.getElementById("iPaceValue");
 const rPaceValue = document.getElementById("rPaceValue");
+const eJogPaceValue = document.getElementById("eJogPaceValue");
 const trainingMenuSection = document.getElementById("trainingMenuSection");
 
 showRecord2Button.addEventListener("click", function(){
@@ -1176,12 +1189,29 @@ if(averageVDOT !== null){
 
 rPaceValue.textContent =
     formatPace(rPace);
+    
+    const eJogPace =
+    calculateEasyPaceRange(ltPace);
+
+if(eJogPace !== null){
+
+    eJogPaceValue.textContent =
+    formatPace(eJogPace.fast).replace(" /km","") +
+    "〜" +
+    formatPace(eJogPace.slow);
+
+}else{
+
+    eJogPaceValue.textContent = "--";
+
+}
 
     }else{
 
         ltPaceValue.textContent = "--";
         iPaceValue.textContent = "--";
         rPaceValue.textContent = "--";
+        eJogPaceValue.textContent = "--";
 
     }
 
@@ -1196,6 +1226,7 @@ rPaceValue.textContent =
     ltPaceValue.textContent = "--";
     iPaceValue.textContent = "--";
     rPaceValue.textContent = "--";
+    eJogPaceValue.textContent = "--";
 }
 
     const confidence = calculateConfidence(records);
