@@ -30,6 +30,7 @@ header{
     z-index:10;
     display:flex;
     align-items:center;
+    justify-content:space-between;
     padding:18px 20px;
     background:rgba(255,255,255,.96);
     border-bottom:1px solid #e6ebf3;
@@ -48,6 +49,23 @@ header{
 .title-runner-icon{display:block;width:28px;height:28px;}
 .header-text h1{margin:0;font-size:1.18rem;line-height:1.3;letter-spacing:.02em;}
 .header-text p{margin:3px 0 0;color:#77839a;font-size:.72rem;}
+.home-link{
+    flex-shrink:0;
+    margin-left:10px;
+    padding:8px 11px;
+    border:1px solid #c9daf7;
+    border-radius:9px;
+    background:#f5f9ff;
+    color:#2563eb;
+    font-size:.75rem;
+    font-weight:700;
+    text-decoration:none;
+    white-space:nowrap;
+}
+
+.home-link:active{
+    background:#e7f0ff;
+}
 main{padding:20px 18px 40px;}
 .notice{
     display:flex;
@@ -375,11 +393,16 @@ footer{padding:25px 18px 90px;color:#98a1b0;text-align:center;font-size:.72rem;}
         <div class="logo" aria-hidden="true">
             <img src="../icons/runner.svg" alt="" class="title-runner-icon">
         </div>
+
         <div class="header-text">
             <h1>3000m予測</h1>
             <p>あなたの記録から3000mの予測タイムを算出します</p>
         </div>
     </div>
+
+    <a href="../" class="home-link">
+        トップへ
+    </a>
 </header>
 
 <main>
